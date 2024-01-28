@@ -12,7 +12,7 @@ const { ERROR_CODE } = require('../utils/constants');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.getUserInfo = (req, res, next) => {
-  User.findById(req.params.userId ? req.params.userId : req.user._id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError({ message: 'Пользователь не найден' });
