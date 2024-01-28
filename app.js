@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
 
+const { DB_ADRESS } = process.env;
+
 const router = require('./routes/index');
 
 const auth = require('./middlewares/auth');
@@ -15,7 +17,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
-mongoose.connect('mongodb://127.0.0.1:27017/bitfilmsdb');
+mongoose.connect(DB_ADRESS);
 const app = express();
 
 app.use(express.json());
