@@ -9,16 +9,14 @@ const { DB_ADRESS, NODE_ENV } = process.env;
 
 const router = require('./routes/index');
 
-const auth = require('./middlewares/auth');
 const { errorHandler } = require('./middlewares/errorHandler');
-const { createUser, login } = require('./controllers/users');
-const { signinValidation, signupValidation } = require('./middlewares/customValidation');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const limiter = require('./middlewares/rateLimiter');
+const { mongoAdress } = require('./utils/config');
 
 const { PORT = 3000 } = process.env;
 
-mongoose.connect(NODE_ENV === 'production' ? DB_ADRESS : 'mongodb://127.0.0.1:27017/bitfilmsdb');
+mongoose.connect(NODE_ENV === 'production' ? DB_ADRESS : mongoAdress);
 const app = express();
 
 app.use(express.json());
@@ -28,9 +26,7 @@ app.use(helmet());
 app.use(limiter);
 app.use(requestLogger);
 
-app.post('/signin', signinValidation, login);
-app.post('/signup', signupValidation, createUser);
-app.use(auth, router);
+app.use(router);
 
 // Errors section
 app.use(errorLogger);

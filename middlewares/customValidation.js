@@ -1,7 +1,11 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+const { ERROR_MESSAGE } = require('../utils/constants');
 
-const isUrl = (value, helpers) => (validator.isURL(value) ? value : helpers.message('Некорректная ссылка'));
+const isUrl = (value, helpers) => (validator.isURL(value)
+  ? value
+  : helpers.message(ERROR_MESSAGE.WRONG_URL)
+);
 
 module.exports.signinValidation = celebrate({
   body: Joi.object().keys({
@@ -18,15 +22,10 @@ module.exports.signupValidation = celebrate({
   }),
 });
 
-module.exports.userIdValidation = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().hex().required().length(24),
-  }),
-});
-
 module.exports.userInfoValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
+    email: Joi.string().required().email(),
   }),
 });
 
@@ -42,11 +41,12 @@ module.exports.movieValidation = celebrate({
     thumbnail: Joi.string().required().custom(isUrl),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
+    movieId: Joi.number().required(),
   }),
 });
 
 module.exports.movieIdValidation = celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().hex().required().length(24),
+    movieId: Joi.string().hex().required().length(24),
   }),
 });

@@ -1,4 +1,4 @@
-const { ValidationError, CastError } = require('mongoose').Error;
+const { ValidationError } = require('mongoose').Error;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -7,7 +7,8 @@ const {
   InaccurateDataError,
   ConflictError,
 } = require('../errors/errors');
-const { ERROR_CODE } = require('../utils/constants');
+const { ERROR_CODE, ERROR_MESSAGE } = require('../utils/constants');
+const { devJWT } = require('../utils/config');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -15,16 +16,11 @@ module.exports.getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError({ message: 'Пользователь не найден' });
+        throw new NotFoundError(ERROR_MESSAGE.USER_NOT_FOUND);
       }
       res.send(user);
     })
-    .catch((err) => {
-      if (err instanceof CastError) {
-        return next(new InaccurateDataError('Переданы некорректные данные'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.updateUserInfo = (req, res, next) => {
@@ -37,13 +33,16 @@ module.exports.updateUserInfo = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+        throw new NotFoundError(ERROR_MESSAGE.USER_NOT_FOUND);
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err instanceof ValidationError) {
-        return next(new InaccurateDataError('Переданы некорректные данные'));
+        return next(new InaccurateDataError(ERROR_MESSAGE.WRONG_DATA_USER_UPDATE));
+      }
+      if (err.code === 11000) {
+        return next(new ConflictError(ERROR_MESSAGE.EMAIL_ALREADY_EXISTS));
       }
       return next(err);
     });
@@ -65,10 +64,10 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err instanceof ValidationError) {
-        return next(new InaccurateDataError('Переданы некорректные данные'));
+        return next(new InaccurateDataError(ERROR_MESSAGE.WRONG_DATA_MOVIE_CREATE));
       }
       if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с таким email уже существует'));
+        return next(new ConflictError(ERROR_MESSAGE.EMAIL_ALREADY_EXISTS));
       }
       return next(err);
     });
@@ -80,7 +79,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        NODE_ENV === 'production' ? JWT_SECRET : devJWT,
         { expiresIn: '7d' },
       );
       res.send({ token });
