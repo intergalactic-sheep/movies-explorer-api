@@ -8,6 +8,6 @@ const { movieValidation, movieIdValidation } = require('../middlewares/customVal
 
 movieRouter.get('/', getMovies);
 movieRouter.post('/', movieValidation, createMovie);
-movieRouter.delete('/:_id', movieIdValidation, deleteMovie);
+movieRouter.delete('/:movieId', movieIdValidation, deleteMovie);
 
 module.exports = movieRouter;
