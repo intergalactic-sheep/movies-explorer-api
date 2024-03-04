@@ -13,6 +13,7 @@ const { errorHandler } = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const limiter = require('./middlewares/rateLimiter');
 const { mongoAdress } = require('./utils/config');
+const resolveCORS = require('./middlewares/resolveCORS');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 
+app.use(resolveCORS);
 app.use(limiter);
 app.use(requestLogger);
 
