@@ -2,7 +2,7 @@ const allowedCors = [
   'https://movie-explorer.is.nomoredomainsmonster.ru',
   'http://movie-explorer.is.nomoredomainsmonster.ru',
   'movie-explorer.is.nomoredomainsmonster.ru',
-  'http://localhpst:3000',
+  'http://localhost:3000',
   'https://localhost:3000',
 ];
 
